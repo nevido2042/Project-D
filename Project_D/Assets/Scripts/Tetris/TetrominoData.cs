@@ -16,8 +16,8 @@ public struct TetrominoData
 
     public void Initialize()
     {
-        // 현재는 "블록 하나만 나오게" 설정되어 있어 한 칸(0,0)만 할당합니다.
-        cells = new Vector2Int[] { new Vector2Int(0, 0) };
+        // 표준 테트리미노 모양 데이터(4개의 블록)를 할당합니다.
+        cells = Data.Cells[tetromino];
         wallKicks = Data.WallKicks[tetromino];
     }
 }
@@ -28,7 +28,7 @@ public static class Data
     public static readonly float Sin = Mathf.Sin(Mathf.PI / 2f);
     public static readonly float[] RotationMatrix = new float[] { Cos, Sin, -Sin, Cos };
 
-    // 각 테트리미노의 기본 모양 좌표 (현재는 단일 블록 모드라 Initialize에서 덮어씌워집니다)
+    // 각 테트리미노의 표준 모양 좌표 (4개의 블록으로 구성)
     public static readonly Dictionary<Tetromino, Vector2Int[]> Cells = new Dictionary<Tetromino, Vector2Int[]>()
     {
         { Tetromino.I, new Vector2Int[] { new Vector2Int(-1,  1), new Vector2Int( 0,  1), new Vector2Int( 1,  1), new Vector2Int( 2,  1) } },
@@ -45,7 +45,7 @@ public static class Data
         { new Vector2Int(0, 0), new Vector2Int(-2, 0), new Vector2Int( 1, 0), new Vector2Int(-2,-1), new Vector2Int( 1, 2) },
         { new Vector2Int(0, 0), new Vector2Int( 2, 0), new Vector2Int(-1, 0), new Vector2Int( 2, 1), new Vector2Int(-1,-2) },
         { new Vector2Int(0, 0), new Vector2Int(-1, 0), new Vector2Int( 2, 0), new Vector2Int(-1, 2), new Vector2Int( 2,-1) },
-        { new Vector2Int(0, 0), new Vector2Int( 1, 0), new Vector2Int(-2, 0), new Vector2Int( 1,-2), new Vector2Int(-2, 1) },
+        { new Vector2Int(0, 0), new Vector2Int( 1, 0), new Vector2Int(-2, 0), new Vector2Int( 1,-2), new Vector2Int( 2, 1) },
         { new Vector2Int(0, 0), new Vector2Int( 2, 0), new Vector2Int(-1, 0), new Vector2Int( 2, 1), new Vector2Int(-1,-2) },
         { new Vector2Int(0, 0), new Vector2Int(-2, 0), new Vector2Int( 1, 0), new Vector2Int(-2,-1), new Vector2Int( 1, 2) },
         { new Vector2Int(0, 0), new Vector2Int( 1, 0), new Vector2Int(-2, 0), new Vector2Int( 1,-2), new Vector2Int(-2, 1) },
