@@ -1,21 +1,22 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Piece : MonoBehaviour
 {
-    public Board board { get; private set; }
-    public TetrominoData data { get; private set; }
-    public Vector2Int[] cells { get; private set; }
-    public Vector2Int position { get; private set; }
-    public int rotationIndex { get; private set; }
-    public Color color { get; private set; }
+    public Board board { get; private set; } // 보드 참조
+    public TetrominoData data { get; private set; } // 테트리미노 데이터
+    public Vector2Int[] cells { get; private set; } // 현재 피스의 구성 블록 좌표들
+    public Vector2Int position { get; private set; } // 현재 피스의 위치
+    public int rotationIndex { get; private set; } // 현재 회전 상태 인덱스
+    public Color color { get; private set; } // 피스 색상
 
-    public float stepDelay = 1f;
-    public float lockDelay = 0.5f;
+    public float stepDelay = 1f; // 자동으로 아래로 떨어지는 간격
+    public float lockDelay = 0.5f; // 바닥에 닿은 후 고정되기 전까지의 유예 시간
 
     private float stepTime;
     private float lockTime;
 
-    private GameObject[] visualBlocks;
+    private GameObject[] visualBlocks; // 시각적 블록 표현
 
     public void Initialize(Board board, Vector2Int position, TetrominoData data, Color color)
     {
@@ -55,51 +56,61 @@ public class Piece : MonoBehaviour
 
         lockTime += Time.deltaTime;
 
-        if (UnityEngine.InputSystem.Keyboard.current != null)
+        // New Input System을 사용한 키보드 입력 처리
+        if (Keyboard.current != null)
         {
-            if (UnityEngine.InputSystem.Keyboard.current.leftArrowKey.wasPressedThisFrame)
+            // 왼쪽 이동
+            if (Keyboard.current.leftArrowKey.wasPressedThisFrame)
             {
                 Move(Vector2Int.left);
             }
-            else if (UnityEngine.InputSystem.Keyboard.current.rightArrowKey.wasPressedThisFrame)
+            // 오른쪽 이동
+            else if (Keyboard.current.rightArrowKey.wasPressedThisFrame)
             {
                 Move(Vector2Int.right);
             }
 
-            if (UnityEngine.InputSystem.Keyboard.current.downArrowKey.wasPressedThisFrame)
+            // 아래로 가속 (소프트 드롭)
+            if (Keyboard.current.downArrowKey.wasPressedThisFrame)
             {
                 Move(Vector2Int.down);
             }
 
-            if (UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame)
+            // 즉시 하강 (하드 드롭)
+            if (Keyboard.current.spaceKey.wasPressedThisFrame)
             {
                 HardDrop();
             }
 
-            if (UnityEngine.InputSystem.Keyboard.current.upArrowKey.wasPressedThisFrame)
+            // 시계 방향 회전
+            if (Keyboard.current.upArrowKey.wasPressedThisFrame)
             {
                 Rotate(1);
             }
         }
 
+        // 자동 하강 타이머 체크
         if (Time.time >= stepTime)
         {
             Step();
         }
     }
 
+    // 한 칸 하강 시도
     private void Step()
     {
         stepTime = Time.time + stepDelay;
 
         Move(Vector2Int.down);
 
+        // 바닥에 닿은 채로 유예 시간이 지났다면 고정
         if (lockTime >= lockDelay)
         {
             Lock();
         }
     }
 
+    // 바닥까지 쭉 떨어뜨림
     private void HardDrop()
     {
         while (Move(Vector2Int.down))
@@ -110,6 +121,7 @@ public class Piece : MonoBehaviour
         Lock();
     }
 
+    // 피스를 보드에 고정시키고 새로운 피스 생성 요청
     private void Lock()
     {
         board.Set(this);
@@ -121,6 +133,7 @@ public class Piece : MonoBehaviour
         }
     }
 
+    // 지정된 방향으로 이동 시도
     private bool Move(Vector2Int translation)
     {
         Vector2Int newPosition = position + translation;
@@ -137,12 +150,14 @@ public class Piece : MonoBehaviour
         return valid;
     }
 
+    // 회전 시도
     private void Rotate(int direction)
     {
         int originalRotation = rotationIndex;
         rotationIndex = Wrap(rotationIndex + direction, 0, 4);
         ApplyRotationMatrix(direction);
 
+        // 회전 시 벽에 부딪히는 경우 Wall Kick(벽 차기) 보정 시도
         if (!TestWallKicks(rotationIndex, direction))
         {
             rotationIndex = originalRotation;
@@ -154,6 +169,7 @@ public class Piece : MonoBehaviour
         }
     }
 
+    // 회전 행렬을 적용하여 세부 블록 좌표 변경
     private void ApplyRotationMatrix(int direction)
     {
         for (int i = 0; i < cells.Length; i++)
@@ -180,6 +196,7 @@ public class Piece : MonoBehaviour
         }
     }
 
+    // 벽 차기 보정 데이터 테스트
     private bool TestWallKicks(int rotationIndex, int rotationDirection)
     {
         int wallKickIndex = GetWallKickIndex(rotationIndex, rotationDirection);
@@ -221,6 +238,7 @@ public class Piece : MonoBehaviour
         }
     }
 
+    // 피스의 시각적 위치 업데이트
     private void UpdateVisuals()
     {
         for (int i = 0; i < cells.Length; i++)
