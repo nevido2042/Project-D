@@ -18,6 +18,12 @@ public class Piece : MonoBehaviour
 
     private GameObject[] visualBlocks; // 시각적 블록 표현
 
+    [Header("Audio")]
+    public AudioClip moveSound; // 이동 효과음
+    public AudioClip rotateSound; // 회전 효과음
+    public AudioClip lockSound; // 고정 효과음
+    private AudioSource audioSource; // 오디오 소스
+
     public void Initialize(Board board, Vector2Int position, TetrominoData data, Color color)
     {
         this.board = board;
@@ -27,6 +33,12 @@ public class Piece : MonoBehaviour
         rotationIndex = 0;
         stepTime = Time.time + stepDelay;
         lockTime = 0f;
+
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+        }
 
         if (cells == null)
         {
@@ -62,18 +74,18 @@ public class Piece : MonoBehaviour
             // 왼쪽 이동
             if (Keyboard.current.leftArrowKey.wasPressedThisFrame)
             {
-                Move(Vector2Int.left);
+                if (Move(Vector2Int.left)) PlaySound(moveSound);
             }
             // 오른쪽 이동
             else if (Keyboard.current.rightArrowKey.wasPressedThisFrame)
             {
-                Move(Vector2Int.right);
+                if (Move(Vector2Int.right)) PlaySound(moveSound);
             }
 
             // 아래로 가속 (소프트 드롭)
             if (Keyboard.current.downArrowKey.wasPressedThisFrame)
             {
-                Move(Vector2Int.down);
+                if (Move(Vector2Int.down)) PlaySound(moveSound);
             }
 
             // 즉시 하강 (하드 드롭)
@@ -93,6 +105,14 @@ public class Piece : MonoBehaviour
         if (Time.time >= stepTime)
         {
             Step();
+        }
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
         }
     }
 
@@ -124,6 +144,7 @@ public class Piece : MonoBehaviour
     // 피스를 보드에 고정시키고 새로운 피스 생성 요청
     private void Lock()
     {
+        PlaySound(lockSound);
         board.Set(this);
         board.ClearLines();
         board.SpawnPiece();
@@ -165,6 +186,7 @@ public class Piece : MonoBehaviour
         }
         else
         {
+            PlaySound(rotateSound);
             UpdateVisuals();
         }
     }
