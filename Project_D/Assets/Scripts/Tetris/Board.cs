@@ -10,7 +10,7 @@ public class Board : MonoBehaviour
     public TetrominoData[] tetrominos; // 테트리미노 데이터 배열
     public Color[] colors; // 테트리미노별 색상
 
-    public Vector2Int spawnPosition = new Vector2Int(4, 18); // 피스 생성 초기 위치
+    public Vector3Int spawnPosition = new Vector3Int(4, 18, 0); // 피스 생성 초기 위치
 
     private void Awake()
     {
@@ -44,7 +44,7 @@ public class Board : MonoBehaviour
         // 생성 위치부터 이미 블록이 있다면 게임 오버
         if (!IsValidPosition(activePiece, spawnPosition))
         {
-            GameManager.Instance?.GameOver();
+            GameManager.Instance?.CheckGameOver();
         }
     }
 
@@ -53,7 +53,7 @@ public class Board : MonoBehaviour
     {
         for (int i = 0; i < piece.cells.Length; i++)
         {
-            Vector2Int pos = piece.cells[i] + piece.position;
+            Vector3Int pos = piece.cells[i] + piece.position;
             
             if (pos.x >= 0 && pos.x < boardSize.x && pos.y >= 0 && pos.y < boardSize.y)
             {
@@ -61,6 +61,22 @@ public class Board : MonoBehaviour
                 GameObject block = Instantiate(blockPrefab, new Vector3(pos.x, pos.y, 0), Quaternion.identity, transform);
                 block.GetComponent<SpriteRenderer>().color = piece.color;
                 grid[pos.x, pos.y] = block.transform;
+            }
+        }
+    }
+
+    // 보드의 모든 줄(블록)을 지우는 초기화 함수
+    public void ClearAllLines()
+    {
+        for (int row = 0; row < boardSize.y; row++)
+        {
+            for (int col = 0; col < boardSize.x; col++)
+            {
+                if (grid[col, row] != null)
+                {
+                    Destroy(grid[col, row].gameObject);
+                    grid[col, row] = null;
+                }
             }
         }
     }
@@ -130,11 +146,11 @@ public class Board : MonoBehaviour
     }
 
     // 해당 위치가 이동 가능한지 충돌 체크
-    public bool IsValidPosition(Piece piece, Vector2Int position)
+    public bool IsValidPosition(Piece piece, Vector3Int position)
     {
         for (int i = 0; i < piece.cells.Length; i++)
         {
-            Vector2Int pos = piece.cells[i] + position;
+            Vector3Int pos = piece.cells[i] + position;
 
             // 경계 밖 체크
             if (pos.x < 0 || pos.x >= boardSize.x || pos.y < 0)

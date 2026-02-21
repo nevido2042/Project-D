@@ -1,5 +1,12 @@
 using UnityEngine;
-using TMPro; // TextMeshPro를 사용하기 위해 추가
+using TMPro;
+
+public enum GameState
+{
+    Menu,
+    Playing,
+    GameOver
+}
 
 public class GameManager : MonoBehaviour
 {
@@ -8,17 +15,23 @@ public class GameManager : MonoBehaviour
 
     public Board board; // 보드 참조
     public int score; // 현재 점수
+
+    public GameState State { get; private set; } = GameState.Menu;
+
+    [Header("UI")]
     public TextMeshProUGUI scoreText; // 점수 표시 UI
+    public GameObject startUI; // 시작 화면 UI
+    public GameObject gameOverUI; // 게임 오버 UI
 
     [Header("Audio")]
-    public AudioSource bgmSource; // 배경음악 오디오 소스
-    public AudioSource sfxSource; // 효과음 오디오 소스
-    public AudioClip lineClearSound; // 줄 제거 효과음
+    public AudioSource bgmSource; // 배경음악 소스
+    public AudioSource sfxSource; // 효과음 소스
+    public AudioClip lineClearSound; // 줄 삭제 효과음
     public AudioClip gameOverSound; // 게임 오버 효과음
 
     private void Awake()
     {
-        // 싱글톤 패턴 설정
+        // 싱글톤 패턴 구현
         if (Instance == null)
         {
             Instance = this;
@@ -31,37 +44,59 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        UpdateScoreUI();
-        if (bgmSource != null && !bgmSource.isPlaying)
-        {
-            bgmSource.Play();
-        }
+        // 게임 시작 시 메뉴 상태로 초기화
+        ChangeState(GameState.Menu);
     }
 
-    // 줄이 제거될 때 점수 추가 및 UI 업데이트
-    public void AddScore(int linesCleared)
+    // 게임 상태 변경 및 처리
+    public void ChangeState(GameState newState)
     {
-        int points = 0;
-        switch (linesCleared)
+        State = newState;
+
+        // 상태에 따른 UI 활성화/비활성화
+        if (startUI != null) startUI.SetActive(State == GameState.Menu);
+        if (gameOverUI != null) gameOverUI.SetActive(State == GameState.GameOver);
+
+        if (State == GameState.Playing)
         {
-            case 1: points = 100; break;
-            case 2: points = 300; break;
-            case 3: points = 500; break;
-            case 4: points = 800; break;
+            // 게임 시작: 점수 초기화, 보드 활성화, BGM 재생, 새 블록 생성
+            score = 0;
+            UpdateScoreUI();
+            board.ClearAllLines();
+            board.enabled = true;
+            
+            if (bgmSource != null)
+            {
+                bgmSource.Play();
+            }
+
+            board.SpawnPiece();
         }
-        score += points;
-        UpdateScoreUI();
-        
-        // 줄 제거 효과음 재생
-        if (sfxSource != null && lineClearSound != null)
+        else
         {
-            sfxSource.PlayOneShot(lineClearSound);
+            // 게임 오버 또는 메뉴 상태: 보드 비활성화, BGM 정지
+            board.enabled = false;
+            if (bgmSource != null)
+            {
+                bgmSource.Stop();
+            }
         }
-        
-        Debug.Log("현재 점수: " + score);
     }
 
-    // UI 텍스트 업데이트
+    // UI 버튼에서 호출될 게임 시작 함수
+    public void StartGame()
+    {
+        ChangeState(GameState.Playing);
+    }
+
+    // 점수 추가 메서드
+    public void AddScore(int amount)
+    {
+        score += amount;
+        UpdateScoreUI();
+    }
+
+    // 점수 UI 업데이트
     private void UpdateScoreUI()
     {
         if (scoreText != null)
@@ -70,24 +105,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 게임 종료 처리
-    public void GameOver()
+    // 게임 오버 처리
+    public void CheckGameOver()
     {
-        if (board != null)
-        {
-            board.enabled = false;
-        }
-        
-        if (bgmSource != null)
-        {
-            bgmSource.Stop();
-        }
+        ChangeState(GameState.GameOver);
+        PlaySFX(gameOverSound);
+    }
 
-        if (sfxSource != null && gameOverSound != null)
+    // 효과음 재생 도우미 메서드
+    public void PlaySFX(AudioClip clip)
+    {
+        if (sfxSource != null && clip != null)
         {
-            sfxSource.PlayOneShot(gameOverSound);
+            sfxSource.PlayOneShot(clip);
         }
-
-        Debug.Log("게임 오버!");
     }
 }
