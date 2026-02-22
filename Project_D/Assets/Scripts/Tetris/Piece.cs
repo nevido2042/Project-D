@@ -158,6 +158,26 @@ public class Piece : MonoBehaviour
         }
     }
 
+    public bool MoveLeft()
+    {
+        return Move(Vector2Int.left);
+    }
+
+    public bool MoveRight()
+    {
+        return Move(Vector2Int.right);
+    }
+
+    public bool MoveDown()
+    {
+        if (Move(Vector2Int.down))
+        {
+            stepTime = 0f;
+            return true;
+        }
+        return false;
+    }
+
     private void OnMove(InputAction.CallbackContext context)
     {
         // 현재 게임 상태 확인
@@ -168,33 +188,40 @@ public class Piece : MonoBehaviour
         // 좌우 이동
         if (direction.x > 0.5f)
         {
-            Move(Vector2Int.right);
+            MoveRight();
         }
         else if (direction.x < -0.5f)
         {
-            Move(Vector2Int.left);
+            MoveLeft();
         }
 
         // 아래로 부드러운 하강 (소프트 드롭)
         if (direction.y < -0.5f)
         {
-            if (Move(Vector2Int.down))
-            {
-                stepTime = 0f; // 수동으로 내렸을 때 자동 하강 타이머 초기화
-            }
+            MoveDown();
         }
+    }
+
+    public void RotateClockwise()
+    {
+        Rotate(1);
     }
 
     private void OnRotate(InputAction.CallbackContext context)
     {
         if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
-        Rotate(1); // 1 = 시계 방향
+        RotateClockwise();
+    }
+
+    public void TriggerHardDrop()
+    {
+        HardDrop();
     }
 
     private void OnHardDrop(InputAction.CallbackContext context)
     {
         if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
-        HardDrop();
+        TriggerHardDrop();
     }
 
     // 지정된 방향으로 이동 시도

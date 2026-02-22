@@ -28,4 +28,28 @@ public class BuildScript
         
         Debug.Log("Build Result: " + report.summary.result.ToString());
     }
+
+    [MenuItem("Tools/Build Android Game")]
+    public static void BuildAndroidGame()
+    {
+        string buildPath = "Builds/Android/Tetris.apk";
+        string dir = Path.GetDirectoryName(buildPath);
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        string[] scenes = { "Assets/Scenes/SampleScene.unity" };
+        
+        BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
+        buildPlayerOptions.scenes = scenes;
+        buildPlayerOptions.locationPathName = buildPath;
+        buildPlayerOptions.target = BuildTarget.Android;
+        buildPlayerOptions.options = BuildOptions.None;
+
+        Debug.Log("Starting Android build to " + buildPath + " ...");
+        BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
+        
+        Debug.Log("Build Result: " + report.summary.result.ToString());
+    }
 }
