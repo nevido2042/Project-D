@@ -1,0 +1,22 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Han" at "2026-02-24T14:09:15.3300644Z"
+Built from '6000.3/staging' branch; Version is '6000.3.9f1 (7a9955a4f2fa) revision 8034645'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 10  (10.0.19045) 64bit Professional' Language: 'ko' Physical Memory: 16276 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-02-24T14:09:15Z
+
+COMMAND LINE ARGUMENTS:
+D:\unity editor\6000.3.9f1\Editor\Unity.exe
+-quit
+-batchmode
+-projectPath
+d:\Fork_Git\Project-D\Project_D
+-executeMethod
+BuildScript.BuildAndroidGame
+-logFile
+build_log.txt
+Successfully changed project path to: d:\Fork_Git\Project-D\Project_D
+D:/Fork_Git/Project-D/Project_D
+Exiting without the bug reporter. Application will terminate with return code 1
