@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI scoreText; // 점수 표시 UI
     public GameObject startUI; // 시작 화면 UI
     public GameObject gameOverUI; // 게임 오버 UI
+    public TextMeshProUGUI rankingTextStart; // 시작 화면 랭킹 텍스트
+    public TextMeshProUGUI rankingTextGameOver; // 게임 오버 화면 랭킹 텍스트
 
     [Header("Audio")]
     public AudioSource bgmSource; // 배경음악 소스
@@ -80,6 +82,9 @@ public class GameManager : MonoBehaviour
             {
                 bgmSource.Stop();
             }
+
+            // 메뉴나 게임 오버 뷰에서는 랭킹 현황 업데이트
+            UpdateRankingUI();
         }
     }
 
@@ -105,9 +110,37 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // 랭킹 UI 업데이트
+    private void UpdateRankingUI()
+    {
+        if (RankingManager.Instance == null) return;
+        
+        string rankingStr = RankingManager.Instance.GetRankingText();
+        
+        if (rankingTextStart != null)
+        {
+            rankingTextStart.text = "Top Scores:\n" + rankingStr;
+        }
+        
+        if (rankingTextGameOver != null)
+        {
+            rankingTextGameOver.text = "Top Scores:\n" + rankingStr;
+        }
+    }
+
     // 게임 오버 처리
     public void CheckGameOver()
     {
+        // 랭킹에 점수 기록 시도
+        if (RankingManager.Instance != null && score > 0)
+        {
+            bool isTopScore = RankingManager.Instance.AddScore(score);
+            if (isTopScore)
+            {
+                Debug.Log("New Top Score Recorded!");
+            }
+        }
+
         ChangeState(GameState.GameOver);
         PlaySFX(gameOverSound);
     }
