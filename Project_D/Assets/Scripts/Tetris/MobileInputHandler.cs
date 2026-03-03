@@ -59,6 +59,7 @@ public class MobileInputHandler : MonoBehaviour
     public void OnLeftButton()
     {
         Debug.Log("MobileInputHandler: Left Button Pressed");
+        if (GameManager.Instance.State != GameState.Playing) return;
         if (board == null) FindBoard();
         if (board != null && board.activePiece != null)
         {
@@ -69,6 +70,7 @@ public class MobileInputHandler : MonoBehaviour
     public void OnRightButton()
     {
         Debug.Log("MobileInputHandler: Right Button Pressed");
+        if (GameManager.Instance.State != GameState.Playing) return;
         if (board == null) FindBoard();
         if (board != null && board.activePiece != null)
         {
@@ -79,6 +81,7 @@ public class MobileInputHandler : MonoBehaviour
     public void OnRotateButton()
     {
         Debug.Log("MobileInputHandler: Rotate Button Pressed");
+        if (GameManager.Instance.State != GameState.Playing) return;
         if (board == null) FindBoard();
         if (board != null && board.activePiece != null)
         {
@@ -89,6 +92,7 @@ public class MobileInputHandler : MonoBehaviour
     public void OnSoftDropButton()
     {
         Debug.Log("MobileInputHandler: Soft Drop Button Pressed");
+        if (GameManager.Instance.State != GameState.Playing) return;
         if (board == null) FindBoard();
         if (board != null && board.activePiece != null)
         {
@@ -99,6 +103,7 @@ public class MobileInputHandler : MonoBehaviour
     public void OnHardDropButton()
     {
         Debug.Log("MobileInputHandler: Hard Drop Button Pressed");
+        if (GameManager.Instance.State != GameState.Playing) return;
         if (board == null) FindBoard();
         if (board != null && board.activePiece != null)
         {
